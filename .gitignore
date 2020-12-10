@@ -1,1 +1,4 @@
 node_modules
+.aws-sam
+samconfig.toml
+env.json

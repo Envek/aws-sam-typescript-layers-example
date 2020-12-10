@@ -48,6 +48,14 @@ The API Gateway endpoint API will be displayed in the outputs when the deploymen
 
 ## Use the AWS SAM CLI to build and test locally
 
+Copy `env.json.sample` to `.env.json`:
+
+```sh
+cp -n env.json{.sample,}
+```
+
+Create some DynamoDB table in AWS console at https://console.aws.amazon.com/dynamodb/home#tables: for local development and write its name into `env.json` (make sure that region in your local configuration matches with console).
+
 Build your application by using the `sam build` command.
 
 ```bash
@@ -61,14 +69,15 @@ Test a single function by invoking it directly with a test event. An event is a 
 Run functions locally and invoke them with the `sam local invoke` command.
 
 ```bash
-my-application$ sam local invoke putItemFunction --event events/event-post-item.json
-my-application$ sam local invoke getAllItemsFunction --event events/event-get-all-items.json
+my-application$ sam local invoke putItemFunction --env-vars env.json --event events/event-post-item.json
+my-application$ sam local invoke getAllItemsFunction --env-vars env.json --event events/event-get-all-items.json
 ```
 
 The AWS SAM CLI can also emulate your application's API. Use the `sam local start-api` command to run the API locally on port 3000.
 
 ```bash
-my-application$ sam local start-api
+my-application$ sam local start-api --env-vars=env.json
+my-application$ curl -X POST http://localhost:3000/ -d '{"id": "curl1","name": "Created with cURL"}'
 my-application$ curl http://localhost:3000/
 ```
 
