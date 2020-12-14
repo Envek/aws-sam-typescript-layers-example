@@ -1,13 +1,18 @@
 .PHONY: build-RuntimeDependenciesLayer build-lambda-common
 .PHONY: build-getAllItemsFunction build-getByIdFunction build-putItemFunction
 
-build-getAllItemsFunction: build-lambda-common
-build-getByIdFunction: build-lambda-common
-build-putItemFunction: build-lambda-common
+build-getAllItemsFunction:
+	$(MAKE) HANDLER=src/handlers/get-all-items.ts build-lambda-common
+build-getByIdFunction:
+	$(MAKE) HANDLER=src/handlers/get-by-id.ts build-lambda-common
+build-putItemFunction:
+	$(MAKE) HANDLER=src/handlers/put-item.ts build-lambda-common
 
 build-lambda-common:
 	npm install
-	npm run build
+	rm -rf dist
+	echo "{\"extends\": \"./tsconfig.json\", \"include\": [\"${HANDLER}\"] }" > tsconfig-only-handler.json
+	npm run build -- --build tsconfig-only-handler.json
 	cp -r dist "$(ARTIFACTS_DIR)/"
 
 build-RuntimeDependenciesLayer:
