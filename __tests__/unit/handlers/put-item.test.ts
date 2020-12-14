@@ -1,11 +1,13 @@
+import { constructAPIGwEvent } from "../../utils/helpers";
+
 // Import all functions from put-item.js 
-const lambda = require('../../../src/handlers/put-item.js'); 
+import { putItemHandler } from '../../../src/handlers/put-item'; 
 // Import dynamodb from aws-sdk 
-const dynamodb = require('aws-sdk/clients/dynamodb'); 
+import dynamodb from 'aws-sdk/clients/dynamodb'; 
  
 // This includes all tests for putItemHandler() 
 describe('Test putItemHandler', function () { 
-    let putSpy; 
+    let putSpy;
  
     // Test one-time setup and teardown, see more in https://jestjs.io/docs/en/setup-teardown 
     beforeAll(() => { 
@@ -28,13 +30,13 @@ describe('Test putItemHandler', function () {
             promise: () => Promise.resolve(returnedItem) 
         }); 
  
-        const event = { 
-            httpMethod: 'POST', 
-            body: '{"id": "id1","name": "name1"}' 
-        }; 
+        const event = constructAPIGwEvent(
+            { id: "id1", name: "name1" },
+            { method: 'POST' },
+        );
      
         // Invoke putItemHandler() 
-        const result = await lambda.putItemHandler(event); 
+        const result = await putItemHandler(event); 
         const expectedResult = { 
             statusCode: 200, 
             body: JSON.stringify(returnedItem) 

@@ -1,7 +1,9 @@
+import { constructAPIGwEvent } from "../../utils/helpers";
+
 // Import all functions from get-by-id.js 
-const lambda = require('../../../src/handlers/get-by-id.js'); 
+import { getByIdHandler } from '../../../src/handlers/get-by-id'; 
 // Import dynamodb from aws-sdk 
-const dynamodb = require('aws-sdk/clients/dynamodb'); 
+import { DocumentClient } from 'aws-sdk/clients/dynamodb'; 
  
 // This includes all tests for getByIdHandler() 
 describe('Test getByIdHandler', () => { 
@@ -11,7 +13,7 @@ describe('Test getByIdHandler', () => {
     beforeAll(() => { 
         // Mock dynamodb get and put methods 
         // https://jestjs.io/docs/en/jest-object.html#jestspyonobject-methodname 
-        getSpy = jest.spyOn(dynamodb.DocumentClient.prototype, 'get'); 
+        getSpy = jest.spyOn(DocumentClient.prototype, 'get'); 
     }); 
  
     // Clean up mocks 
@@ -28,15 +30,15 @@ describe('Test getByIdHandler', () => {
             promise: () => Promise.resolve({ Item: item }) 
         }); 
  
-        const event = { 
+        const event = constructAPIGwEvent({}, { 
             httpMethod: 'GET', 
             pathParameters: { 
                 id: 'id1' 
             } 
-        } 
+        });
  
         // Invoke getByIdHandler() 
-        const result = await lambda.getByIdHandler(event); 
+        const result = await getByIdHandler(event); 
  
         const expectedResult = { 
             statusCode: 200, 

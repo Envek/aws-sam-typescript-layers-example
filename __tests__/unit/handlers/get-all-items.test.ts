@@ -1,7 +1,9 @@
+import { constructAPIGwEvent } from "../../utils/helpers";
+
 // Import all functions from get-all-items.js 
-const lambda = require('../../../src/handlers/get-all-items.js'); 
+import { getAllItemsHandler } from '../../../src/handlers/get-all-items'; 
 // Import dynamodb from aws-sdk 
-const dynamodb = require('aws-sdk/clients/dynamodb'); 
+import { DocumentClient } from 'aws-sdk/clients/dynamodb'; 
  
 // This includes all tests for getAllItemsHandler() 
 describe('Test getAllItemsHandler', () => { 
@@ -11,7 +13,7 @@ describe('Test getAllItemsHandler', () => {
     beforeAll(() => { 
         // Mock dynamodb get and put methods 
         // https://jestjs.io/docs/en/jest-object.html#jestspyonobject-methodname 
-        scanSpy = jest.spyOn(dynamodb.DocumentClient.prototype, 'scan'); 
+        scanSpy = jest.spyOn(DocumentClient.prototype, 'scan'); 
     }); 
  
     // Clean up mocks 
@@ -27,12 +29,10 @@ describe('Test getAllItemsHandler', () => {
             promise: () => Promise.resolve({ Items: items }) 
         }); 
  
-        const event = { 
-            httpMethod: 'GET' 
-        } 
+        const event = constructAPIGwEvent({}, { method: 'GET' });
  
         // Invoke helloFromLambdaHandler() 
-        const result = await lambda.getAllItemsHandler(event); 
+        const result = await getAllItemsHandler(event); 
  
         const expectedResult = { 
             statusCode: 200, 
