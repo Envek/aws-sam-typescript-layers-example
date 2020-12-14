@@ -46,6 +46,21 @@ The first command will build the source of your application. The second command 
 
 The API Gateway endpoint API will be displayed in the outputs when the deployment is complete.
 
+### Building of additional layers and Lambda itself
+
+To decrease size of Lambda functions, runtime dependencies are extracted into Lambda Layer.
+
+However, many guides (including Amazon ones) like [1](https://aws.amazon.com/blogs/compute/working-with-aws-lambda-and-lambda-layers-in-aws-sam/) or [2](https://medium.com/@anjanava.biswas/nodejs-runtime-environment-with-aws-lambda-layers-f3914613e20e) propose to move `package.json` to another folder which breaks local development and testing.
+
+To keep local workflow, building of Lambda itself and its layers was changed from default “automagic” of SAM (`sam build` automatically copies code, installs packages, and cleans up, but this process can't be customized) to explicit steps defined in `Makefile` as per [Building layers](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/building-layers.html) doc.
+
+So, now on `sam build` command:
+ 1. Only `src` folder is copied into function itself (however it is renamed into `dist` and contains TypeScript transpiled to JavaScript).
+ 2. packages are installed into separate layer (`package.json` and `package-lock.json` are also copied for reference)
+ 3. Local project layout isn't changed at all.
+
+`sam deploy` will update layer with dependencies only if number or versions of packages were changed.
+
 ## Use the AWS SAM CLI to build and test locally
 
 Copy `env.json.sample` to `.env.json`:

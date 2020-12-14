@@ -12,6 +12,11 @@ Description: >-
 Transform:
 - AWS::Serverless-2016-10-31
 
+Globals:
+  Function:
+    Layers:
+      - !Ref RuntimeDependenciesLayer
+
 # Resources declares the AWS resources that you want to include in the stack
 # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/resources-section-structure.html
 Resources:
@@ -21,6 +26,8 @@ Resources:
   # This is a Lambda function config associated with the source code: get-all-items.js
   getAllItemsFunction:
     Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: makefile
     Properties:
       Handler: src/handlers/get-all-items.getAllItemsHandler
       Runtime: nodejs12.x
@@ -47,6 +54,8 @@ Resources:
   # This is a Lambda function config associated with the source code: get-by-id.js
   getByIdFunction:
     Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: makefile
     Properties:
       Handler: src/handlers/get-by-id.getByIdHandler
       Runtime: nodejs12.x
@@ -73,6 +82,8 @@ Resources:
   # This is a Lambda function config associated with the source code: put-item.js
   putItemFunction:
     Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: makefile
     Properties:
       Handler: src/handlers/put-item.putItemHandler
       Runtime: nodejs12.x
@@ -106,6 +117,17 @@ Resources:
       ProvisionedThroughput:
         ReadCapacityUnits: 2
         WriteCapacityUnits: 2
+
+  RuntimeDependenciesLayer:
+    Type: AWS::Serverless::LayerVersion
+    Metadata:
+      BuildMethod: makefile
+    Properties:
+      Description: Runtime dependencies for Lambdas
+      ContentUri: ./
+      CompatibleRuntimes:
+        - nodejs12.x
+      RetentionPolicy: Retain
 
 Outputs:
   WebEndpoint:
