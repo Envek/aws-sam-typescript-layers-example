@@ -36,7 +36,9 @@ sam build
 sam deploy --guided
 ```
 
-The first command will build the source of your application. The second command will package and deploy your application to AWS, with a series of prompts:
+The first command will build the source of your application: installs dependencies that are defined in `package.json`, creates a deployment package, and saves it in the `.aws-sam/build` folder.
+
+The second command will package and deploy your application to AWS, with a series of prompts:
 
 * **Stack Name**: The name of the stack to deploy to CloudFormation. This should be unique to your account and region, and a good starting point would be something matching your project name.
 * **AWS Region**: The AWS region you want to deploy your app to.
@@ -71,13 +73,23 @@ cp -n env.json{.sample,}
 
 Create some DynamoDB table in AWS console at https://console.aws.amazon.com/dynamodb/home#tables: for local development and write its name into `env.json` (make sure that region in your local configuration matches with console).
 
-Build your application by using the `sam build` command.
+**Warning:** Make sure you don't have `.aws-sam` directory (built SAM template), because if you do, `sam local invoke` will use code from it and won't see your code changes.
+
+If you have some kind of Procfile launcher like [Overmind](https://github.com/DarthSim/overmind) (highly recommended!) you can use it to start both TypeScript compiler in watch mode and local API gateway simultaneously:
 
 ```bash
-my-application$ sam build
+$ overmind start
 ```
 
-The AWS SAM CLI installs dependencies that are defined in `package.json`, creates a deployment package, and saves it in the `.aws-sam/build` folder.
+And that's it: now you can head over to http://localhost:3000/ to hit `getAllItemsFunction`!
+
+But, sure, you still can start components independently:
+
+Start Typescript compiler in watch mode to recompile your code on change (_instead_ of running `sam build` command).
+
+```bash
+$ npm run watch
+```
 
 Test a single function by invoking it directly with a test event. An event is a JSON document that represents the input that the function receives from the event source. Test events are included in the `events` folder in this project.
 

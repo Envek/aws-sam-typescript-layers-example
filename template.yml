@@ -29,7 +29,7 @@ Resources:
     Metadata:
       BuildMethod: makefile
     Properties:
-      Handler: src/handlers/get-all-items.getAllItemsHandler
+      Handler: dist/handlers/get-all-items.getAllItemsHandler
       Runtime: nodejs12.x
       MemorySize: 128
       Timeout: 100
@@ -57,7 +57,7 @@ Resources:
     Metadata:
       BuildMethod: makefile
     Properties:
-      Handler: src/handlers/get-by-id.getByIdHandler
+      Handler: dist/handlers/get-by-id.getByIdHandler
       Runtime: nodejs12.x
       MemorySize: 128
       Timeout: 100
@@ -85,7 +85,7 @@ Resources:
     Metadata:
       BuildMethod: makefile
     Properties:
-      Handler: src/handlers/put-item.putItemHandler
+      Handler: dist/handlers/put-item.putItemHandler
       Runtime: nodejs12.x
       MemorySize: 128
       Timeout: 100

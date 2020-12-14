@@ -6,7 +6,9 @@ build-getByIdFunction: build-lambda-common
 build-putItemFunction: build-lambda-common
 
 build-lambda-common:
-	cp -r src "$(ARTIFACTS_DIR)/"
+	npm install
+	npm run build
+	cp -r dist "$(ARTIFACTS_DIR)/"
 
 build-RuntimeDependenciesLayer:
 	mkdir -p "$(ARTIFACTS_DIR)/nodejs"
