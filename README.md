@@ -119,6 +119,22 @@ The AWS SAM CLI reads the application template to determine the API's routes and
             Method: GET
 ```
 
+### Debugging
+
+You can debug with external debugger by this manual: [Step-through debugging Node.js functions locally ](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-using-debugging-nodejs.html)
+
+ 1. Run `sam local invoke` with `--debug-port` option.
+
+    ```sh
+    $ sam local invoke getAllItemsFunction --env-vars=env.json --event events/event-get-all-items.json --debug-port 5858
+    ```
+
+    It will wait for debugger to attach before starting execution of the function.
+
+ 2. Place a breakpoint where needed (yes, right in TypeScript code).
+
+ 3. Start external debugger. In Visual Studio Code you can just press F5.
+
 ## Add a resource to your application
 The application template uses AWS SAM to define application resources. AWS SAM is an extension of AWS CloudFormation with a simpler syntax for configuring common serverless application resources, such as functions, triggers, and APIs. For resources that aren't included in the [AWS SAM specification](https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md), you can use the standard [AWS CloudFormation resource types](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-template-resource-type-ref.html).
 
