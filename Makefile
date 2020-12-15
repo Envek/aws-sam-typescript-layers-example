@@ -7,6 +7,8 @@ build-getByIdFunction:
 	$(MAKE) HANDLER=src/handlers/get-by-id.ts build-lambda-common
 build-putItemFunction:
 	$(MAKE) HANDLER=src/handlers/put-item.ts build-lambda-common
+build-writeItemFunction:
+	$(MAKE) HANDLER=src/handlers/write-item.ts build-lambda-common
 
 build-lambda-common:
 	npm install

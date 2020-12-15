@@ -5,13 +5,7 @@ import {
 } from "aws-lambda";
 
 // Create clients and set shared const values outside of the handler.
-
-// Create a DocumentClient that represents the query to add an item
-import dynamodb from 'aws-sdk/clients/dynamodb';
-const docClient = new dynamodb.DocumentClient();
-
-// Get the DynamoDB table name from environment variables
-const tableName = process.env.SAMPLE_TABLE;
+import CustomSqsClient from '../utils/sqs';
 
 /**
  * A simple example includes a HTTP post method to add one item to a DynamoDB table.
@@ -30,18 +24,12 @@ export const putItemHandler = async (
     const id = body.id;
     const name = body.name;
 
-    // Creates a new item, or replaces an old item with a new item
-    // https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/DynamoDB/DocumentClient.html#put-property
-    var params = {
-        TableName : tableName,
-        Item: { id : id, name: name }
-    };
-
-    const result = await docClient.put(params).promise();
+    const client = new CustomSqsClient();
+    const result = await client.send({ id, name });
 
     const response = {
-        statusCode: 200,
-        body: JSON.stringify(body)
+        statusCode: 201,
+        body: JSON.stringify({ MessageId: result.MessageId })
     };
 
     // All log statements are written to CloudWatch

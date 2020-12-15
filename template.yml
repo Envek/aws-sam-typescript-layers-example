@@ -16,6 +16,13 @@ Globals:
   Function:
     Layers:
       - !Ref RuntimeDependenciesLayer
+    Environment:
+      Variables:
+        SAMPLE_TABLE: !Ref SampleTable
+        ITEM_QUEUE: !Ref WriteQueue
+    Runtime: nodejs12.x
+    MemorySize: 128
+    Timeout: 100
 
 # Resources declares the AWS resources that you want to include in the stack
 # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/resources-section-structure.html
@@ -30,18 +37,11 @@ Resources:
       BuildMethod: makefile
     Properties:
       Handler: dist/handlers/get-all-items.getAllItemsHandler
-      Runtime: nodejs12.x
-      MemorySize: 128
-      Timeout: 100
       Description: A simple example includes a HTTP get method to get all items from a DynamoDB table.
       Policies:
         # Give Create/Read/Update/Delete Permissions to the SampleTable
         - DynamoDBCrudPolicy:
             TableName: !Ref SampleTable
-      Environment:
-        Variables:
-          # Make table name accessible as environment variable from function code during execution
-          SAMPLE_TABLE: !Ref SampleTable
       Events:
         Api:
           Type: Api
@@ -58,18 +58,11 @@ Resources:
       BuildMethod: makefile
     Properties:
       Handler: dist/handlers/get-by-id.getByIdHandler
-      Runtime: nodejs12.x
-      MemorySize: 128
-      Timeout: 100
       Description: A simple example includes a HTTP get method to get one item by id from a DynamoDB table.
       Policies:
         # Give Create/Read/Update/Delete Permissions to the SampleTable
         - DynamoDBCrudPolicy:
             TableName: !Ref SampleTable
-      Environment:
-        Variables:
-          # Make table name accessible as environment variable from function code during execution
-          SAMPLE_TABLE: !Ref SampleTable
       Events:
         Api:
           Type: Api
@@ -86,24 +79,39 @@ Resources:
       BuildMethod: makefile
     Properties:
       Handler: dist/handlers/put-item.putItemHandler
-      Runtime: nodejs12.x
-      MemorySize: 128
-      Timeout: 100
-      Description: A simple example includes a HTTP post method to add one item to a DynamoDB table.
+      Description: A simple example includes a HTTP post method to add one item to an SQS queue (to be written to a DynamoDB table later).
       Policies:
-        # Give Create/Read/Update/Delete Permissions to the SampleTable
-        - DynamoDBCrudPolicy:
-            TableName: !Ref SampleTable
-      Environment:
-        Variables:
-          # Make table name accessible as environment variable from function code during execution
-          SAMPLE_TABLE: !Ref SampleTable
+        # Give permission to send message to an Amazon SQS queue. See https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-policy-template-list.html#sqs-send-message-policy
+        - SQSSendMessagePolicy:
+            QueueName: !GetAtt WriteQueue.QueueName
       Events:
         Api:
           Type: Api
           Properties:
             Path: /
             Method: POST
+
+  # This is a Lambda function config associated with the source code: write-item.ts
+  writeItemFunction:
+    Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: makefile
+    Properties:
+      Handler: dist/handlers/write-item.writeItemHandler
+      Description: A simple example includes an SQS subscription to write queued object to DynamoDB
+      Timeout: 25 # Chosen to be less than the default SQS Visibility Timeout of 30 seconds
+      Policies:
+        # Give Create/Read/Update/Delete Permissions to the SampleTable, see https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-policy-template-list.html#dynamo-db-crud-policy
+        - DynamoDBCrudPolicy:
+            TableName: !Ref SampleTable
+      Events:
+        # Subscription to primary SQS queue
+        SQSQueueEvent:
+          Type: SQS
+          Properties:
+            Queue: !GetAtt WriteQueue.Arn
+            BatchSize: 1
+
   # Simple syntax to create a DynamoDB table with a single attribute primary key, more in
   # https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlesssimpletable
 
@@ -117,6 +125,9 @@ Resources:
       ProvisionedThroughput:
         ReadCapacityUnits: 2
         WriteCapacityUnits: 2
+
+  WriteQueue:
+    Type: AWS::SQS::Queue
 
   RuntimeDependenciesLayer:
     Type: AWS::Serverless::LayerVersion
