@@ -1,8 +1,26 @@
 # aws-sam-typescript-layers-example
 
-This project contains source code and supporting files for a serverless application that you can deploy with the AWS Serverless Application Model (AWS SAM) command line interface (CLI). It includes the following files and folders:
+This project contains source code and supporting files for a serverless application that is written in TypeSctipt using shared layers for dependencies with following considerations in mind:
 
-- `src` - Code for the application's Lambda function.
+- Keeping the local development experience mostly unchanged compared to pure Node.js SAM app: no moving `package.json` to other places or otherwise change the directory structure before deployment.
+- No running `sam build` on every change in a function handler code.
+- Keeping generated JS code as close to TS source as possible, preserving the file layout (don't bundle everything into a single file like webpack does).
+- Keeping dependencies in a separate layer shared between related Lambdas: it makes deploys faster as you only need to update function code and not its dependencies. Also, Lambda functions have the size limit which can be easily surpassed with heavy dependencies, shared layers allow us to keep coloring between the lines.
+- Keeping deploys as vanilla as possible: `sam build` and `sam deploy`, with no extra CLI magic.
+
+In short, a Lambda with TypeScript and shared layers must behave the same way as a freshly generated Lambda on pure Node.js.
+
+To create your own serverless application based this example you can use [this SAM template](https://github.com/Envek/cookiecutter-aws-sam-typescript-layers):
+
+```sh
+sam init --location gh:Envek/cookiecutter-aws-sam-typescript-layers
+```
+
+This sample application is artificially created set of Lambda function that does arbitrary CRUD operations in a way that better display benefits and features of this solution, like partial transpiling of only used source files.
+
+This repo includes the following files and folders:
+
+- `src` - Code for the application's Lambda function written in TypeScript.
 - `events` - Invocation events that you can use to invoke the function.
 - `__tests__` - Unit tests for the application code. 
 - `template.yml` - A template that defines the application's AWS resources.
@@ -58,7 +76,7 @@ To keep local workflow, building of Lambda itself and its layers was changed fro
 
 So, now on `sam build` command:
  1. Only `src` folder is copied into function itself (however it is renamed into `dist` and contains TypeScript transpiled to JavaScript).
- 2. packages are installed into separate layer (`package.json` and `package-lock.json` are also copied for reference)
+ 2. packages are installed into separate layer (`package-lock.json` is also copied for reference)
  3. Local project layout isn't changed at all.
 
 `sam deploy` will update layer with dependencies only if number or versions of packages were changed.
@@ -140,7 +158,7 @@ The application template uses AWS SAM to define application resources. AWS SAM i
 
 Update `template.yml` to add a dead-letter queue to your application. In the **Resources** section, add a resource named **MyQueue** with the type **AWS::SQS::Queue**. Then add a property to the **AWS::Serverless::Function** resource named **DeadLetterQueue** that targets the queue's Amazon Resource Name (ARN), and a policy that grants the function permission to access the queue.
 
-```
+```yaml
 Resources:
   MyQueue:
     Type: AWS::SQS::Queue
