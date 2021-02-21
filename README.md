@@ -83,7 +83,7 @@ So, now on `sam build` command:
 
 ## Use the AWS SAM CLI to build and test locally
 
-Copy `env.json.sample` to `.env.json`:
+Copy `env.json.sample` to `env.json`:
 
 ```sh
 cp -n env.json{.sample,}
