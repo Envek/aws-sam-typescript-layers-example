@@ -1,5 +1,6 @@
 node_modules
 .aws-sam
 samconfig.toml
+tsconfig-only-handler.json
 env.json
 dist/
