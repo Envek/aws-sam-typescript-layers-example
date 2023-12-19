@@ -20,7 +20,7 @@ Globals:
       Variables:
         SAMPLE_TABLE: !Ref SampleTable
         ITEM_QUEUE: !Ref WriteQueue
-    Runtime: nodejs12.x
+    Runtime: nodejs18.x
     MemorySize: 128
     Timeout: 100
 
@@ -137,7 +137,7 @@ Resources:
       Description: Runtime dependencies for Lambdas
       ContentUri: ./
       CompatibleRuntimes:
-        - nodejs12.x
+        - nodejs18.x
       RetentionPolicy: Retain
 
 Outputs:
