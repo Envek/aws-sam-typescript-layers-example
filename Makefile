@@ -11,7 +11,7 @@ build-writeItemFunction:
 	$(MAKE) HANDLER=src/handlers/write-item.ts build-lambda-common
 
 build-lambda-common:
-	npm install
+	if [ "package.json" -nt "node_modules" ]; then npm install; fi;
 	rm -rf dist
 	printf "{\"extends\": \"./tsconfig.json\", \"include\": [\"${HANDLER}\"] }" > tsconfig-only-handler.json
 	npm run build -- --build tsconfig-only-handler.json
